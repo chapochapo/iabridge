@@ -1,97 +1,166 @@
+{{define "landing.html"}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>iabridge</title>
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <link rel="stylesheet" href="/static/style.css">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --ia-font: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      --ia-bg: #ffffff;
-      --ia-text: #2c2c2c;
-      --ia-header-bg: #222222;
-      --ia-header-text: #ffffff;
-      --ia-btn-color: #4b64ff;
-      --ia-btn-hover: #3a50d9;
-      --ia-border: #dddddd;
-    }
-    body {
-      font-family: var(--ia-font);
-      font-size: 14px;
-      background: var(--ia-bg);
-      color: var(--ia-text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    header {
-      background: var(--ia-header-bg);
-      padding: 12px 24px;
-    }
-    header a {
-      color: var(--ia-header-text);
-      text-decoration: none;
-      font-size: 1.1rem;
-      font-weight: bold;
-      letter-spacing: 0.03em;
-    }
     main {
       flex: 1;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 48px 24px;
+      padding: 48px 32px;
     }
-    h1 {
-      font-size: 3rem;
-      margin-bottom: 32px;
-      color: inherit;
-    }
-    .search-form {
+
+    .hero {
       display: flex;
-      gap: 8px;
+      align-items: center;
+      max-width: 860px;
       width: 100%;
-      max-width: 600px;
     }
-    .search-form input[type="search"] {
+
+    .hero-logo {
+      flex-shrink: 0;
+      padding-right: 40px;
+      border-right: 1px solid #cccccc;
+      color: #2c2c2c;
+    }
+
+    .hero-content {
       flex: 1;
-      padding: 10px 14px;
-      font-size: 16px;
-      font-family: var(--ia-font);
-      border: 1px solid var(--ia-border);
-      border-radius: 3px;
-      outline: none;
+      padding-left: 40px;
+      min-width: 0;
     }
-    .search-form input[type="search"]:focus {
-      border-color: var(--ia-btn-color);
-      box-shadow: 0 0 0 2px rgba(75,100,255,.15);
+
+    .hero-tagline {
+      font-size: 1.2rem;
+      line-height: 1.5;
+      color: var(--ia-text);
+      margin-bottom: 28px;
     }
-    .search-form button {
-      padding: 10px 22px;
-      font-size: 14px;
-      font-family: var(--ia-font);
-      background: var(--ia-btn-color);
-      color: #fff;
-      border: none;
-      border-radius: 3px;
-      cursor: pointer;
-      white-space: nowrap;
+
+    .mt-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px 6px;
+      margin-bottom: 28px;
     }
-    .search-form button:hover { background: var(--ia-btn-hover); }
+
+    .mt-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      text-decoration: none;
+      color: var(--ia-text-muted);
+      font-size: 10px;
+      font-weight: bold;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      width: 64px;
+    }
+    .mt-item:hover { color: var(--ia-link); text-decoration: none; }
+
+    .mt-icon { width: 46px; height: 46px; display: block; }
+
+    .mt-texts    { filter: brightness(0) invert(1) sepia(1) saturate(8)  hue-rotate(340deg) brightness(0.82); }
+    .mt-audio    { filter: brightness(0) invert(1) sepia(1) saturate(5)  hue-rotate(140deg) brightness(0.82); }
+    .mt-movies   { filter: brightness(0) invert(1) sepia(1) saturate(10) hue-rotate(325deg) brightness(0.78); }
+    .mt-software { filter: brightness(0) invert(1) sepia(1) saturate(8)  hue-rotate(85deg)  brightness(0.78); }
+    .mt-image    { filter: brightness(0) invert(1) sepia(1) saturate(8)  hue-rotate(175deg) brightness(0.95); }
+    .mt-data     { filter: brightness(0) invert(1) sepia(1) saturate(8)  hue-rotate(245deg) brightness(0.82); }
+    .mt-collection { filter: brightness(0) invert(1) sepia(1) saturate(5) hue-rotate(15deg) brightness(0.78); }
+    .mt-web      { filter: brightness(0) invert(1) sepia(1) saturate(5)  hue-rotate(205deg) brightness(0.88); }
+
+    .landing-search { max-width: 520px; }
   </style>
 </head>
 <body>
-  <header>
-    <a href="/">iabridge</a>
-  </header>
+  {{template "navbar" .}}
   <main>
-    <h1>iabridge</h1>
-    <form class="search-form" action="/search" method="get">
-      <input type="search" name="q" placeholder="Search archive.org…" autofocus autocomplete="off">
-      <button type="submit">Search</button>
-    </form>
+    <div class="hero">
+      <div class="hero-logo">
+        {{template "building-svg-lg" .}}
+      </div>
+      <div class="hero-content">
+        <p class="hero-tagline">
+          A self-hosted front-end for the Internet Archive.
+          <br>
+          Internet Archive is a non-profit library of
+          millions of free texts, movies, software, music, websites, and more.
+        </p>
+
+        <div class="mt-grid">
+          <a class="mt-item" href="/search?q=mediatype:texts">
+            <img class="mt-icon mt-texts" src="/static/icons/texts.svg" alt="">
+            <span>Texts</span>
+          </a>
+          <a class="mt-item" href="/search?q=mediatype:audio">
+            <img class="mt-icon mt-audio" src="/static/icons/audio.svg" alt="">
+            <span>Audio</span>
+          </a>
+          <a class="mt-item" href="/search?q=mediatype:movies">
+            <img class="mt-icon mt-movies" src="/static/icons/movies.svg" alt="">
+            <span>Movies</span>
+          </a>
+          <a class="mt-item" href="/search?q=mediatype:software">
+            <img class="mt-icon mt-software" src="/static/icons/software.svg" alt="">
+            <span>Software</span>
+          </a>
+          <a class="mt-item" href="/search?q=mediatype:image">
+            <img class="mt-icon mt-image" src="/static/icons/image.svg" alt="">
+            <span>Images</span>
+          </a>
+          <a class="mt-item" href="/search?q=mediatype:data">
+            <img class="mt-icon mt-data" src="/static/icons/data.svg" alt="">
+            <span>Data</span>
+          </a>
+          <a class="mt-item" href="/search?q=mediatype:collection">
+            <img class="mt-icon mt-collection" src="/static/icons/collection.svg" alt="">
+            <span>Collections</span>
+          </a>
+          <a class="mt-item" href="/search?q=mediatype:web">
+            <img class="mt-icon mt-web" src="/static/icons/web.svg" alt="">
+            <span>Web</span>
+          </a>
+        </div>
+
+        <form class="search-form landing-search" action="/search" method="get">
+          <div class="sel-wrap">
+            <select id="mt-sel" aria-label="Media type">
+              <option value="">All</option>
+              <option value="texts">Texts</option>
+              <option value="audio">Audio</option>
+              <option value="movies">Movies</option>
+              <option value="software">Software</option>
+              <option value="image">Images</option>
+              <option value="data">Data</option>
+              <option value="collection">Collections</option>
+              <option value="web">Web</option>
+            </select>
+          </div>
+          <input type="search" name="q" placeholder="Search the Archive…" autofocus autocomplete="off">
+          <button type="submit" aria-label="Search">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <circle cx="8" cy="8" r="5"/>
+              <line x1="12" y1="12" x2="16" y2="16"/>
+            </svg>
+          </button>
+        </form>
+      </div>
+    </div>
   </main>
+  <script>
+    document.querySelector('.search-form').addEventListener('submit', function () {
+      var mt = document.getElementById('mt-sel').value;
+      var inp = this.querySelector('input[name="q"]');
+      if (mt) inp.value = 'mediatype:' + mt + (inp.value ? ' ' + inp.value : '');
+    });
+  </script>
 </body>
 </html>
+{{end}}

@@ -1,93 +1,24 @@
+{{define "search.html"}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{.Query}} — iabridge</title>
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <link rel="stylesheet" href="/static/style.css">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --ia-font: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      --ia-bg: #ffffff;
-      --ia-text: #2c2c2c;
-      --ia-header-bg: #222222;
-      --ia-header-text: #ffffff;
-      --ia-link: #4b64ff;
-      --ia-link-hover: #3a50d9;
-      --ia-btn-color: #4b64ff;
-      --ia-btn-hover: #3a50d9;
-      --ia-text-muted: #767676;
-      --ia-border: #dddddd;
-      --ia-bg-secondary: #f5f5f5;
-    }
-    body {
-      font-family: var(--ia-font);
-      font-size: 14px;
-      background: var(--ia-bg);
-      color: var(--ia-text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    a { color: var(--ia-link); text-decoration: none; }
-    a:hover { color: var(--ia-link-hover); text-decoration: underline; }
-
-    header {
-      background: var(--ia-header-bg);
-      padding: 12px 24px;
-    }
-    header a {
-      color: var(--ia-header-text);
-      text-decoration: none;
-      font-size: 1.1rem;
-      font-weight: bold;
-      letter-spacing: 0.03em;
-    }
-    header a:hover { text-decoration: none; color: var(--ia-header-text); }
-
     .toolbar {
       background: var(--ia-bg-secondary);
       border-bottom: 1px solid var(--ia-border);
       padding: 10px 24px;
     }
-    .search-form {
-      display: flex;
-      gap: 8px;
-      max-width: 700px;
-    }
-    .search-form input[type="search"] {
-      flex: 1;
-      padding: 7px 12px;
-      font-size: 14px;
-      font-family: var(--ia-font);
-      border: 1px solid var(--ia-border);
-      border-radius: 3px;
-      outline: none;
-    }
-    .search-form input[type="search"]:focus {
-      border-color: var(--ia-btn-color);
-      box-shadow: 0 0 0 2px rgba(75,100,255,.15);
-    }
-    .search-form button {
-      padding: 7px 18px;
-      font-size: 14px;
-      font-family: var(--ia-font);
-      background: var(--ia-btn-color);
-      color: #fff;
-      border: none;
-      border-radius: 3px;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    .search-form button:hover { background: var(--ia-btn-hover); }
+    .toolbar .search-form { max-width: 700px; height: 38px; }
+    .toolbar .search-form input[type="search"] { font-size: 14px; }
 
     main { flex: 1; padding: 20px 24px; max-width: 900px; }
 
-    .total {
-      color: var(--ia-text-muted);
-      margin-bottom: 16px;
-      font-size: 13px;
-    }
+    .total { color: var(--ia-text-muted); margin-bottom: 16px; font-size: 13px; }
 
     .results { list-style: none; }
     .result {
@@ -99,13 +30,7 @@
     }
     .result:first-child { border-top: 1px solid var(--ia-border); }
 
-    .mediatype-icon {
-      flex-shrink: 0;
-      margin-top: 2px;
-      opacity: 0.55;
-      width: 18px;
-      height: 18px;
-    }
+    .mediatype-icon { flex-shrink: 0; margin-top: 2px; opacity: 0.55; width: 18px; height: 18px; }
     .cover-thumb {
       flex-shrink: 0;
       width: 56px;
@@ -116,12 +41,7 @@
     }
 
     .result-body { flex: 1; min-width: 0; }
-    .result-title {
-      font-size: 15px;
-      font-weight: bold;
-      display: block;
-      margin-bottom: 4px;
-    }
+    .result-title { font-size: 15px; font-weight: bold; display: block; margin-bottom: 4px; }
     .result-meta {
       font-size: 12px;
       color: var(--ia-text-muted);
@@ -131,11 +51,7 @@
     }
     .result-meta .sep::before { content: "·"; margin-right: 10px; }
 
-    .pagination {
-      margin-top: 24px;
-      display: flex;
-      gap: 16px;
-    }
+    .pagination { margin-top: 24px; display: flex; gap: 16px; }
     .pagination a {
       padding: 7px 16px;
       border: 1px solid var(--ia-border);
@@ -144,21 +60,20 @@
     }
     .pagination a:hover { background: var(--ia-bg-secondary); text-decoration: none; }
 
-    .no-results {
-      margin-top: 40px;
-      color: var(--ia-text-muted);
-      font-size: 15px;
-    }
+    .no-results { margin-top: 40px; color: var(--ia-text-muted); font-size: 15px; }
   </style>
 </head>
 <body>
-  <header>
-    <a href="/">iabridge</a>
-  </header>
+  {{template "navbar" .}}
   <div class="toolbar">
     <form class="search-form" action="/search" method="get">
-      <input type="search" name="q" value="{{.Query}}" autocomplete="off">
-      <button type="submit">Search</button>
+      <input type="search" name="q" value="{{.Query}}" autocomplete="off" aria-label="Search">
+      <button type="submit" aria-label="Search">
+        <svg width="16" height="16" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <circle cx="8" cy="8" r="5"/>
+          <line x1="12" y1="12" x2="16" y2="16"/>
+        </svg>
+      </button>
     </form>
   </div>
   <main>
@@ -201,3 +116,4 @@
   </main>
 </body>
 </html>
+{{end}}

@@ -1,33 +1,13 @@
+{{define "details.html"}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{or .Item.Metadata.Title .Item.Metadata.Identifier}} — iabridge</title>
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <link rel="stylesheet" href="/static/style.css">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --ia-font: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      --ia-mono: "Courier New", Courier, monospace;
-      --ia-bg: #ffffff;
-      --ia-text: #2c2c2c;
-      --ia-header-bg: #222222;
-      --ia-header-text: #ffffff;
-      --ia-link: #4b64ff;
-      --ia-link-hover: #3a50d9;
-      --ia-btn-color: #4b64ff;
-      --ia-btn-hover: #3a50d9;
-      --ia-text-muted: #767676;
-      --ia-border: #dddddd;
-      --ia-bg-secondary: #f5f5f5;
-    }
-    body { font-family: var(--ia-font); font-size: 14px; background: var(--ia-bg); color: var(--ia-text); }
-    a { color: var(--ia-link); text-decoration: none; }
-    a:hover { color: var(--ia-link-hover); text-decoration: underline; }
-
-    header { background: var(--ia-header-bg); padding: 12px 24px; }
-    header a { color: var(--ia-header-text); text-decoration: none; font-size: 1.1rem; font-weight: bold; letter-spacing: .03em; }
-    header a:hover { color: var(--ia-header-text); text-decoration: none; }
 
     main { max-width: 900px; padding: 28px 24px; display: flex; gap: 28px; }
 
@@ -85,20 +65,6 @@
       color: var(--ia-text);
       cursor: pointer;
     }
-    .btn {
-      padding: 7px 18px;
-      font-size: 13px;
-      font-family: var(--ia-font);
-      border: none;
-      border-radius: 3px;
-      cursor: pointer;
-    }
-    .btn-primary { background: var(--ia-btn-color); color: #fff; }
-    .btn-primary:hover:not(:disabled) { background: var(--ia-btn-hover); }
-    .btn-secondary { background: var(--ia-bg-secondary); color: var(--ia-text); border: 1px solid var(--ia-border); }
-    .btn-secondary:hover:not(:disabled) { background: var(--ia-border); }
-    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
-
     #status {
       margin-top: 10px;
       font-size: 13px;
@@ -109,9 +75,7 @@
   </style>
 </head>
 <body>
-  <header>
-    <a href="/">iabridge</a>
-  </header>
+  {{template "navbar" .}}
   <main>
     {{if .CoverURL}}
     <div class="cover">
@@ -257,3 +221,4 @@
   </main>
 </body>
 </html>
+{{end}}

@@ -1,0 +1,179 @@
+/* ── Reset ───────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ───────────────────────────────────────────────────────── */
+:root {
+  --ia-font:         "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --ia-mono:         "Courier New", Courier, monospace;
+  --ia-bg:           #ffffff;
+  --ia-text:         #2c2c2c;
+  --ia-header-bg:    #222222;
+  --ia-header-text:  #ffffff;
+  --ia-link:         #4b64ff;
+  --ia-link-hover:   #3a50d9;
+  --ia-btn-color:    #4b64ff;
+  --ia-btn-hover:    #3a50d9;
+  --ia-text-muted:   #767676;
+  --ia-border:       #dddddd;
+  --ia-bg-secondary: #f5f5f5;
+}
+
+/* ── Base ────────────────────────────────────────────────────────────────── */
+body {
+  font-family: var(--ia-font);
+  font-size: 14px;
+  background: var(--ia-bg);
+  color: var(--ia-text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: var(--ia-link); text-decoration: none; }
+a:hover { color: var(--ia-link-hover); text-decoration: underline; }
+
+/* ── Navbar ──────────────────────────────────────────────────────────────── */
+header {
+  background: var(--ia-header-bg);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ia-header-text);
+  text-decoration: none;
+}
+.header-left:hover { color: var(--ia-header-text); text-decoration: none; }
+
+.header-brand {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.25rem;
+  font-weight: bold;
+  letter-spacing: 0.04em;
+}
+
+.header-right { display: flex; align-items: center; gap: 16px; }
+
+.btn-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ia-header-text);
+  text-decoration: none;
+  font-size: 0.75rem;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.85;
+  border: 1px solid rgba(255,255,255,0.35);
+  padding: 5px 11px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.btn-nav:hover {
+  opacity: 1;
+  background: rgba(255,255,255,0.1);
+  text-decoration: none;
+  color: var(--ia-header-text);
+}
+.btn-nav-donate {
+  border-color: rgba(255,160,50,0.6);
+  color: #ffcf7a;
+}
+.btn-nav-donate:hover {
+  background: rgba(255,160,50,0.15);
+  color: #ffcf7a;
+  border-color: rgba(255,160,50,0.9);
+}
+
+/* ── Search form ─────────────────────────────────────────────────────────── */
+.search-form {
+  display: flex;
+  align-items: stretch;
+  height: 46px;
+  border: 1px solid var(--ia-border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.search-form:focus-within {
+  border-color: var(--ia-btn-color);
+  box-shadow: 0 0 0 2px rgba(75,100,255,.12);
+}
+
+.search-form .sel-wrap {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: stretch;
+  border-right: 1px solid var(--ia-border);
+  background: var(--ia-bg-secondary);
+}
+.search-form .sel-wrap select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 0 30px 0 12px;
+  font-size: 14px;
+  font-family: var(--ia-font);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--ia-text);
+  outline: none;
+  height: 100%;
+}
+.search-form .sel-wrap::after {
+  content: "▾";
+  position: absolute;
+  right: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-size: 11px;
+  color: var(--ia-text-muted);
+}
+
+.search-form input[type="search"] {
+  flex: 1;
+  padding: 0 14px;
+  font-size: 15px;
+  font-family: var(--ia-font);
+  border: none;
+  outline: none;
+  min-width: 0;
+  color: var(--ia-text);
+  background: var(--ia-bg);
+}
+
+.search-form button[type="submit"] {
+  flex-shrink: 0;
+  padding: 0 18px;
+  background: var(--ia-btn-color);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.search-form button[type="submit"]:hover { background: var(--ia-btn-hover); }
+
+/* ── Shared buttons ──────────────────────────────────────────────────────── */
+.btn {
+  padding: 7px 18px;
+  font-size: 13px;
+  font-family: var(--ia-font);
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.btn-primary { background: var(--ia-btn-color); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: var(--ia-btn-hover); }
+.btn-secondary { background: var(--ia-bg-secondary); color: var(--ia-text); border: 1px solid var(--ia-border); }
+.btn-secondary:hover:not(:disabled) { background: var(--ia-border); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
