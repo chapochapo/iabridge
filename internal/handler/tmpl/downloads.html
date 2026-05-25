@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Downloads — iabridge</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ia-font: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --ia-bg: #ffffff;
+      --ia-text: #2c2c2c;
+      --ia-header-bg: #222222;
+      --ia-header-text: #ffffff;
+      --ia-link: #4b64ff;
+      --ia-link-hover: #3a50d9;
+      --ia-text-muted: #767676;
+      --ia-border: #dddddd;
+      --ia-bg-secondary: #f5f5f5;
+    }
+    body { font-family: var(--ia-font); font-size: 14px; background: var(--ia-bg); color: var(--ia-text); }
+    a { color: var(--ia-link); text-decoration: none; }
+    a:hover { color: var(--ia-link-hover); text-decoration: underline; }
+
+    header { background: var(--ia-header-bg); padding: 12px 24px; }
+    header a { color: var(--ia-header-text); text-decoration: none; font-size: 1.1rem; font-weight: bold; letter-spacing: .03em; }
+    header a:hover { color: var(--ia-header-text); text-decoration: none; }
+
+    main { padding: 24px; }
+    h1 { font-size: 1.3rem; margin-bottom: 16px; color: inherit; }
+
+    .actions { display: flex; gap: 8px; margin-bottom: 14px; }
+    .actions button {
+      padding: 6px 14px; font-size: 13px; font-family: var(--ia-font);
+      border: 1px solid var(--ia-border); border-radius: 3px;
+      background: var(--ia-bg-secondary); color: var(--ia-text);
+      cursor: pointer;
+    }
+    .actions button:hover { background: var(--ia-border); }
+    .actions button.danger { border-color: #c00; color: #c00; }
+    .actions button.danger:hover { background: #fff0f0; }
+    .actions button:disabled { opacity: 0.4; cursor: default; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; padding: 8px 10px; border-bottom: 2px solid var(--ia-border); color: var(--ia-text-muted); font-weight: normal; }
+    th.cb-col, td.cb-col { width: 32px; padding-left: 4px; }
+    td { padding: 10px; border-bottom: 1px solid var(--ia-border); vertical-align: top; }
+
+    .status-running { color: #b07000; }
+    .status-done    { color: #2a7a2a; }
+    .status-error   { color: #b00; }
+
+    .progress-line {
+      font-size: 11px; font-family: "Courier New", Courier, monospace;
+      color: var(--ia-text-muted); margin-top: 4px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 360px;
+    }
+    .error-msg { font-size: 12px; color: var(--ia-text-muted); margin-top: 4px; word-break: break-all; }
+
+    .empty { color: var(--ia-text-muted); margin-top: 40px; font-size: 15px; }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/">iabridge</a>
+  </header>
+  <main>
+    <h1>Downloads</h1>
+    {{if .}}
+    <div class="actions">
+      <button id="btn-clear" disabled onclick="doAction('clear')">Clear selected</button>
+      <button id="btn-delete" class="danger" disabled onclick="doAction('delete')">Delete from disk</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th class="cb-col"><input type="checkbox" id="cb-all" title="Select all"></th>
+          <th>Item</th>
+          <th>Save path</th>
+          <th>Started</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="rows">
+        {{range .}}
+        <tr data-id="{{.Identifier}}">
+          <td class="cb-col"><input type="checkbox" class="row-cb" value="{{.Identifier}}"></td>
+          <td>
+            <a href="/details/{{.Identifier}}">{{or .Title .Identifier}}</a><br>
+            <span style="color:var(--ia-text-muted);font-size:12px">{{.Identifier}}</span>
+          </td>
+          <td>{{.SavePath}}</td>
+          <td>{{.StartedAt.Format "2006-01-02 15:04"}}</td>
+          <td>
+            <span class="status-{{.Status}}">{{.Status}}</span>
+            {{if .Progress}}<div class="progress-line">{{.Progress}}</div>{{end}}
+            {{if .Error}}<div class="error-msg">{{.Error}}</div>{{end}}
+          </td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+    {{else}}
+    <p class="empty">No downloads yet.</p>
+    {{end}}
+  </main>
+
+  <script>
+    (function () {
+      // ── selection ──────────────────────────────────────────────────────────
+      var cbAll = document.getElementById('cb-all');
+      var btnClear = document.getElementById('btn-clear');
+      var btnDelete = document.getElementById('btn-delete');
+
+      function getChecked() {
+        return Array.from(document.querySelectorAll('.row-cb:checked')).map(function (cb) { return cb.value; });
+      }
+
+      function updateButtons() {
+        var any = getChecked().length > 0;
+        if (btnClear) btnClear.disabled = !any;
+        if (btnDelete) btnDelete.disabled = !any;
+      }
+
+      document.addEventListener('change', function (ev) {
+        if (ev.target && ev.target.id === 'cb-all') {
+          document.querySelectorAll('.row-cb').forEach(function (cb) { cb.checked = ev.target.checked; });
+        }
+        updateButtons();
+      });
+
+      // ── actions ────────────────────────────────────────────────────────────
+      window.doAction = function (action) {
+        var ids = getChecked();
+        if (!ids.length) return;
+        if (action === 'delete' && !confirm('Delete ' + ids.length + ' item(s) from disk? This cannot be undone.')) return;
+        var url = action === 'delete' ? '/api/downloads/delete' : '/api/downloads/clear';
+        fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ identifiers: ids })
+        }).then(function (r) {
+          if (r.ok) refreshNow();
+          else r.text().then(function (t) { alert('Error: ' + t); });
+        }).catch(function (e) { alert('Request failed: ' + e); });
+      };
+
+      // ── live refresh ───────────────────────────────────────────────────────
+      function buildRows(entries) {
+        var checked = new Set(getChecked());
+        var html = '';
+        var anyRunning = false;
+        (entries || []).forEach(function (e) {
+          if (e.status === 'running') anyRunning = true;
+          var started = e.started_at ? e.started_at.slice(0, 16).replace('T', ' ') : '';
+          var isChecked = checked.has(e.identifier) ? ' checked' : '';
+          html += '<tr data-id="' + e.identifier + '">' +
+            '<td class="cb-col"><input type="checkbox" class="row-cb" value="' + e.identifier + '"' + isChecked + '></td>' +
+            '<td><a href="/details/' + e.identifier + '">' + (e.title || e.identifier) + '</a><br>' +
+            '<span style="color:var(--ia-text-muted);font-size:12px">' + e.identifier + '</span></td>' +
+            '<td>' + e.save_path + '</td>' +
+            '<td>' + started + '</td>' +
+            '<td><span class="status-' + e.status + '">' + e.status + '</span>' +
+            (e.progress ? '<div class="progress-line">' + e.progress + '</div>' : '') +
+            (e.error ? '<div class="error-msg">' + e.error + '</div>' : '') +
+            '</td></tr>';
+        });
+        return { html: html, anyRunning: anyRunning };
+      }
+
+      var refreshTimer = null;
+
+      function scheduleRefresh() {
+        if (refreshTimer) clearTimeout(refreshTimer);
+        refreshTimer = setTimeout(refresh, 3000);
+      }
+
+      function refresh() {
+        fetch('/api/downloads')
+          .then(function (r) { return r.json(); })
+          .then(function (entries) {
+            var tbody = document.getElementById('rows');
+            if (!tbody) return;
+            var result = buildRows(entries);
+            tbody.innerHTML = result.html;
+            updateButtons();
+            if (result.anyRunning) scheduleRefresh();
+          })
+          .catch(function () {});
+      }
+
+      function refreshNow() { if (refreshTimer) clearTimeout(refreshTimer); refresh(); }
+
+      // Start polling only if there are running downloads on initial load
+      if (document.querySelector('.status-running')) scheduleRefresh();
+    })();
+  </script>
+</body>
+</html>

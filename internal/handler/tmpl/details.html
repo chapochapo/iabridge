@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{or .Item.Metadata.Title .Item.Metadata.Identifier}} — iabridge</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ia-font: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --ia-mono: "Courier New", Courier, monospace;
+      --ia-bg: #ffffff;
+      --ia-text: #2c2c2c;
+      --ia-header-bg: #222222;
+      --ia-header-text: #ffffff;
+      --ia-link: #4b64ff;
+      --ia-link-hover: #3a50d9;
+      --ia-btn-color: #4b64ff;
+      --ia-btn-hover: #3a50d9;
+      --ia-text-muted: #767676;
+      --ia-border: #dddddd;
+      --ia-bg-secondary: #f5f5f5;
+    }
+    body { font-family: var(--ia-font); font-size: 14px; background: var(--ia-bg); color: var(--ia-text); }
+    a { color: var(--ia-link); text-decoration: none; }
+    a:hover { color: var(--ia-link-hover); text-decoration: underline; }
+
+    header { background: var(--ia-header-bg); padding: 12px 24px; }
+    header a { color: var(--ia-header-text); text-decoration: none; font-size: 1.1rem; font-weight: bold; letter-spacing: .03em; }
+    header a:hover { color: var(--ia-header-text); text-decoration: none; }
+
+    main { max-width: 900px; padding: 28px 24px; display: flex; gap: 28px; }
+
+    .cover { flex-shrink: 0; }
+    .cover img { width: 180px; height: 180px; object-fit: cover; border: 1px solid var(--ia-border); display: block; }
+
+    .content { flex: 1; min-width: 0; }
+
+    .item-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .item-title h1 { font-size: 1.5rem; line-height: 1.3; color: inherit; }
+    .mediatype-icon { opacity: 0.5; flex-shrink: 0; }
+
+    .meta-table { border-collapse: collapse; width: 100%; margin-bottom: 20px; font-size: 13px; }
+    .meta-table tr { border-bottom: 1px solid var(--ia-border); }
+    .meta-table td { padding: 6px 8px; vertical-align: top; }
+    .meta-table td:first-child { color: var(--ia-text-muted); white-space: nowrap; width: 120px; }
+
+    .tags { display: flex; flex-wrap: wrap; gap: 4px; }
+    .tag {
+      background: var(--ia-bg-secondary);
+      border: 1px solid var(--ia-border);
+      border-radius: 3px;
+      padding: 2px 8px;
+      font-size: 12px;
+      color: var(--ia-text);
+      text-decoration: none;
+    }
+    .tag:hover { background: var(--ia-border); text-decoration: none; color: var(--ia-text); }
+
+    .description {
+      margin-bottom: 24px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--ia-text);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .download-section { border-top: 1px solid var(--ia-border); padding-top: 20px; }
+    .download-section h2 { font-size: 1rem; margin-bottom: 12px; color: inherit; }
+    .download-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+    select {
+      padding: 7px 10px;
+      font-family: var(--ia-font);
+      font-size: 13px;
+      border: 1px solid var(--ia-border);
+      border-radius: 3px;
+      background: var(--ia-bg);
+      color: var(--ia-text);
+      cursor: pointer;
+    }
+    .btn {
+      padding: 7px 18px;
+      font-size: 13px;
+      font-family: var(--ia-font);
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .btn-primary { background: var(--ia-btn-color); color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: var(--ia-btn-hover); }
+    .btn-secondary { background: var(--ia-bg-secondary); color: var(--ia-text); border: 1px solid var(--ia-border); }
+    .btn-secondary:hover:not(:disabled) { background: var(--ia-border); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    #status {
+      margin-top: 10px;
+      font-size: 13px;
+      min-height: 20px;
+    }
+    #status.ok { color: #2a7a2a; }
+    #status.err { color: #b00; }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/">iabridge</a>
+  </header>
+  <main>
+    {{if .CoverURL}}
+    <div class="cover">
+      <img src="{{.CoverURL}}" alt="cover">
+    </div>
+    {{end}}
+
+    <div class="content">
+      <div class="item-title">
+        <img class="mediatype-icon"
+             src="/static/icons/{{or .Item.Metadata.Mediatype "other"}}.svg"
+             width="24" height="24"
+             alt="{{.Item.Metadata.Mediatype}}">
+        <h1>{{or .Item.Metadata.Title .Item.Metadata.Identifier}}</h1>
+      </div>
+
+      <table class="meta-table">
+        {{if .Item.Metadata.Creator}}
+        <tr>
+          <td>Creator</td>
+          <td><a href="{{creatorSearchURL .Item.Metadata.Creator}}">{{.Item.Metadata.Creator}}</a></td>
+        </tr>
+        {{end}}
+        {{if .Item.Metadata.Date}}
+        <tr><td>Date</td><td>{{.Item.Metadata.Date}}</td></tr>
+        {{end}}
+        {{if .Item.Metadata.Year}}
+        <tr><td>Year</td><td>{{.Item.Metadata.Year}}</td></tr>
+        {{end}}
+        {{if .Subjects}}
+        <tr>
+          <td>Topics</td>
+          <td>
+            <div class="tags">
+              {{range .Subjects}}
+              <a class="tag" href="{{. | subjectSearchURL}}">{{.}}</a>
+              {{end}}
+            </div>
+          </td>
+        </tr>
+        {{end}}
+        {{if .Collections}}
+        <tr>
+          <td>Collections</td>
+          <td>
+            <div class="tags">
+              {{range .Collections}}
+              <a class="tag" href="/details/{{.}}">{{.}}</a>
+              {{end}}
+            </div>
+          </td>
+        </tr>
+        {{end}}
+        {{if .Item.Metadata.Uploader}}
+        <tr><td>Uploader</td><td>{{.Item.Metadata.Uploader}}</td></tr>
+        {{end}}
+        {{if .Item.Metadata.Addeddate}}
+        <tr><td>Added</td><td>{{.Item.Metadata.Addeddate}}</td></tr>
+        {{end}}
+        {{if .Item.Metadata.Scanner}}
+        <tr><td>Scanner</td><td>{{.Item.Metadata.Scanner}}</td></tr>
+        {{end}}
+        {{if .TotalSize}}
+        <tr><td>Size</td><td>{{.TotalSize}}</td></tr>
+        {{end}}
+        <tr>
+          <td>Identifier</td>
+          <td><code>{{.Item.Metadata.Identifier}}</code></td>
+        </tr>
+      </table>
+
+      {{if .Description}}
+      <div class="description">{{.Description}}</div>
+      {{end}}
+
+      {{if .SavePaths}}
+      <div class="download-section">
+        <h2>Download</h2>
+        <div class="download-controls">
+          <select id="save-path">
+            {{range .SavePaths}}
+            <option value="{{.}}">{{.}}</option>
+            {{end}}
+          </select>
+          <button class="btn btn-primary" id="btn-qbt" {{if not .TorrentURL}}disabled{{end}}>
+            Send to qBittorrent
+          </button>
+          <button class="btn btn-secondary" id="btn-ia">
+            Download with ia
+          </button>
+        </div>
+        <div id="status"></div>
+      </div>
+
+      <script>
+        (function () {
+          var torrentURL = {{.TorrentURL}};
+          var identifier = {{.Item.Metadata.Identifier}};
+          var status = document.getElementById('status');
+
+          function setStatus(msg, isErr) {
+            status.textContent = msg;
+            status.className = isErr ? 'err' : 'ok';
+          }
+
+          function savePath() {
+            return document.getElementById('save-path').value;
+          }
+
+          document.getElementById('btn-qbt').addEventListener('click', function () {
+            setStatus('Sending to qBittorrent…', false);
+            fetch('/api/qbittorrent/add', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({torrent_url: torrentURL, save_path: savePath()})
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+              if (d.error) setStatus('Error: ' + d.error, true);
+              else setStatus('Added to qBittorrent.', false);
+            })
+            .catch(function (e) { setStatus('Request failed: ' + e, true); });
+          });
+
+          document.getElementById('btn-ia').addEventListener('click', function () {
+            setStatus('Starting download…', false);
+            fetch('/api/ia/download', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({identifier: identifier, save_path: savePath()})
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+              if (d.error) setStatus('Error: ' + d.error, true);
+              else setStatus('Download started. See /downloads for status.', false);
+            })
+            .catch(function (e) { setStatus('Request failed: ' + e, true); });
+          });
+        })();
+      </script>
+      {{end}}
+    </div>
+  </main>
+</body>
+</html>

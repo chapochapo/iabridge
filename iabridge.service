@@ -1,0 +1,19 @@
+[Unit]
+Description=iabridge — archive.org frontend
+After=network.target
+
+[Service]
+User=nobody
+ExecStart=/usr/local/bin/iabridge
+Environment=CONFIG_PATH=/etc/iabridge/config.env
+Restart=always
+RestartSec=5
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/etc/iabridge
+
+[Install]
+WantedBy=multi-user.target

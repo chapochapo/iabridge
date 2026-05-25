@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>iabridge</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ia-font: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --ia-bg: #ffffff;
+      --ia-text: #2c2c2c;
+      --ia-header-bg: #222222;
+      --ia-header-text: #ffffff;
+      --ia-btn-color: #4b64ff;
+      --ia-btn-hover: #3a50d9;
+      --ia-border: #dddddd;
+    }
+    body {
+      font-family: var(--ia-font);
+      font-size: 14px;
+      background: var(--ia-bg);
+      color: var(--ia-text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: var(--ia-header-bg);
+      padding: 12px 24px;
+    }
+    header a {
+      color: var(--ia-header-text);
+      text-decoration: none;
+      font-size: 1.1rem;
+      font-weight: bold;
+      letter-spacing: 0.03em;
+    }
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 24px;
+    }
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 32px;
+      color: inherit;
+    }
+    .search-form {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      max-width: 600px;
+    }
+    .search-form input[type="search"] {
+      flex: 1;
+      padding: 10px 14px;
+      font-size: 16px;
+      font-family: var(--ia-font);
+      border: 1px solid var(--ia-border);
+      border-radius: 3px;
+      outline: none;
+    }
+    .search-form input[type="search"]:focus {
+      border-color: var(--ia-btn-color);
+      box-shadow: 0 0 0 2px rgba(75,100,255,.15);
+    }
+    .search-form button {
+      padding: 10px 22px;
+      font-size: 14px;
+      font-family: var(--ia-font);
+      background: var(--ia-btn-color);
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .search-form button:hover { background: var(--ia-btn-hover); }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/">iabridge</a>
+  </header>
+  <main>
+    <h1>iabridge</h1>
+    <form class="search-form" action="/search" method="get">
+      <input type="search" name="q" placeholder="Search archive.org…" autofocus autocomplete="off">
+      <button type="submit">Search</button>
+    </form>
+  </main>
+</body>
+</html>
