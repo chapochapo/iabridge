@@ -35,6 +35,16 @@ type SearchResult struct {
 	Creator     any    `json:"creator"`     // string or []string
 	Date        string `json:"date"`
 	Description any    `json:"description"` // string or []string
+	Downloads   int    `json:"downloads"`
+	Subject     any    `json:"subject"`     // string or []string
+	Collections any    `json:"collection"`  // string or []string
+	Language    any    `json:"language"`    // string or []string
+}
+
+// FacetField is a single value+count pair used to build sidebar filters.
+type FacetField struct {
+	Value string
+	Count int
 }
 
 // SearchResponse wraps the archive.org advancedsearch response.
@@ -116,7 +126,7 @@ func Search(query string, page, rows int) (*SearchResponse, error) {
 	params.Set("output", "json")
 	params.Set("rows", fmt.Sprintf("%d", rows))
 	params.Set("page", fmt.Sprintf("%d", page))
-	params.Set("fl[]", "identifier,title,mediatype,creator,date,description")
+	params.Set("fl[]", "identifier,title,mediatype,creator,date,description,downloads,subject,collection,language")
 
 	resp, err := httpClient.Get(fmt.Sprintf("%s?%s", searchBase, params.Encode()))
 	if err != nil {

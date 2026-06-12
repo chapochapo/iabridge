@@ -41,6 +41,14 @@ func Register(mux *http.ServeMux, cfg *config.Config, store *downloads.Store) {
 		"subjectSearchURL": func(subject string) string {
 			return "/search?q=" + url.QueryEscape(`subject:"`+subject+`"`)
 		},
+		"facetURL": func(q, field, value, view string) string {
+			newQ := q + ` ` + field + `:"` + value + `"`
+			u := "/search?q=" + url.QueryEscape(newQ)
+			if view != "" && view != "list" {
+				u += "&view=" + url.QueryEscape(view)
+			}
+			return u
+		},
 	}).ParseFS(tmplFS, "tmpl/*.html"))
 
 	staticSub, _ := fs.Sub(staticFS, "static")

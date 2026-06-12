@@ -16,10 +16,82 @@
     .toolbar .search-form { max-width: 700px; height: 38px; }
     .toolbar .search-form input[type="search"] { font-size: 14px; }
 
-    main { flex: 1; padding: 20px 24px; max-width: 900px; }
+    /* Two-column layout */
+    .page-layout {
+      display: flex;
+      align-items: flex-start;
+      min-height: calc(100vh - 120px);
+    }
+    .sidebar {
+      width: 210px;
+      flex-shrink: 0;
+      padding: 20px 16px;
+      border-right: 1px solid var(--ia-border);
+      font-size: 13px;
+    }
+    .main-col {
+      flex: 1;
+      padding: 20px 24px;
+      min-width: 0;
+    }
+    @media (max-width: 700px) { .sidebar { display: none; } }
 
-    .total { color: var(--ia-text-muted); margin-bottom: 16px; font-size: 13px; }
+    /* Sidebar facets */
+    .facet-group { margin-bottom: 20px; }
+    .facet-heading {
+      font-size: 13px;
+      font-weight: bold;
+      color: var(--ia-text);
+      margin: 0 0 8px 0;
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--ia-border);
+    }
+    .facet-list { list-style: none; margin: 0; padding: 0; }
+    .facet-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 6px;
+      padding: 2px 0;
+    }
+    .facet-list a {
+      color: var(--ia-link);
+      font-size: 13px;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .facet-list a:hover { text-decoration: underline; }
+    .facet-count { color: var(--ia-text-muted); font-size: 12px; flex-shrink: 0; }
 
+    /* Results header row */
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .total { color: var(--ia-text-muted); font-size: 13px; }
+
+    /* View toggle buttons */
+    .view-toggles { display: flex; gap: 4px; }
+    .view-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border: 1px solid var(--ia-border);
+      border-radius: 3px;
+      color: var(--ia-text-muted);
+      text-decoration: none;
+    }
+    .view-btn:hover { background: var(--ia-bg-secondary); color: var(--ia-text); }
+    .view-btn.active { background: var(--ia-btn-color); border-color: var(--ia-btn-color); color: #fff; }
+    .view-btn svg { display: block; }
+
+    /* ── LIST VIEW (default) ── */
     .results { list-style: none; }
     .result {
       display: flex;
@@ -29,7 +101,6 @@
       border-bottom: 1px solid var(--ia-border);
     }
     .result:first-child { border-top: 1px solid var(--ia-border); }
-
     .mediatype-icon { flex-shrink: 0; margin-top: 2px; opacity: 0.55; width: 18px; height: 18px; }
     .cover-thumb {
       flex-shrink: 0;
@@ -39,7 +110,6 @@
       border-radius: 3px;
       background: var(--ia-bg-secondary);
     }
-
     .result-body { flex: 1; min-width: 0; }
     .result-title { font-size: 15px; font-weight: bold; display: block; margin-bottom: 4px; }
     .result-meta {
@@ -51,6 +121,103 @@
     }
     .result-meta .sep::before { content: "·"; margin-right: 10px; }
 
+    /* ── GRID VIEW ── */
+    .results.grid-view {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 16px;
+      border-top: 1px solid var(--ia-border);
+      padding-top: 14px;
+    }
+    .results.grid-view .result {
+      flex-direction: column;
+      gap: 8px;
+      padding: 0;
+      border-bottom: none;
+    }
+    .results.grid-view .result:first-child { border-top: none; }
+    .results.grid-view .cover-thumb {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1;
+      border-radius: 4px;
+    }
+    .results.grid-view .grid-icon {
+      width: 100%;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--ia-bg-secondary);
+      border-radius: 4px;
+    }
+    .results.grid-view .grid-icon img { width: 48px; height: 48px; opacity: 0.5; }
+    .results.grid-view .result-title { font-size: 13px; margin-bottom: 2px; }
+    .results.grid-view .result-meta { font-size: 11px; }
+    .results.grid-view .mediatype-icon { display: none; }
+
+    /* ── COMPACT VIEW ── */
+    .compact-header {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 2px solid var(--ia-border);
+      font-size: 12px;
+      font-weight: bold;
+      color: var(--ia-text-muted);
+    }
+    .results.compact-view .result {
+      padding: 5px 0;
+      align-items: center;
+      gap: 8px;
+    }
+    .results.compact-view .result:first-child { border-top: 1px solid var(--ia-border); }
+    .results.compact-view .cover-thumb {
+      width: 28px;
+      height: 28px;
+      border-radius: 2px;
+    }
+    .results.compact-view .mediatype-icon { width: 16px; height: 16px; }
+    .results.compact-view .result-body { display: contents; }
+    .results.compact-view .result-title {
+      font-size: 13px;
+      font-weight: normal;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 0;
+    }
+    .results.compact-view .result-meta { display: contents; }
+    .results.compact-view .compact-creator {
+      width: 120px;
+      flex-shrink: 0;
+      font-size: 12px;
+      color: var(--ia-text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .results.compact-view .compact-date {
+      width: 90px;
+      flex-shrink: 0;
+      font-size: 12px;
+      color: var(--ia-text-muted);
+    }
+    .results.compact-view .compact-type {
+      width: 20px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+    }
+    .col-thumb  { width: 28px; flex-shrink: 0; }
+    .col-title  { flex: 1; }
+    .col-creator{ width: 120px; flex-shrink: 0; }
+    .col-date   { width: 90px; flex-shrink: 0; }
+    .col-type   { width: 20px; flex-shrink: 0; }
+
+    /* Pagination */
     .pagination { margin-top: 24px; display: flex; gap: 16px; }
     .pagination a {
       padding: 7px 16px;
@@ -76,44 +243,190 @@
       </button>
     </form>
   </div>
-  <main>
-    {{if .Results}}
-      <p class="total">{{.Total}} results — page {{.Page}}</p>
-      <ul class="results">
-        {{range .Results}}
-        <li class="result">
-          {{if and $.ShowCovers (eq .Mediatype "audio")}}
-          <img class="cover-thumb"
-               src="/api/cover/{{.Identifier}}"
-               alt=""
-               loading="lazy"
-               onerror="this.style.display='none'">
-          {{else}}
-          <img class="mediatype-icon"
-               src="/static/icons/{{or .Mediatype "other"}}.svg"
-               alt="{{.Mediatype}}"
-               width="18" height="18">
-          {{end}}
-          <div class="result-body">
-            <a class="result-title" href="/details/{{.Identifier}}">{{or .Title .Identifier}}</a>
-            <div class="result-meta">
-              {{if .Creator}}<a href="{{creatorSearchURL .Creator}}">{{.Creator}}</a>{{end}}
-              {{if and .Creator .Date}}<span class="sep"></span>{{end}}
-              {{if .Date}}<span>{{.Date}}</span>{{end}}
-              {{if .Mediatype}}<span class="sep"></span><span>{{.Mediatype}}</span>{{end}}
-            </div>
-          </div>
-        </li>
-        {{end}}
-      </ul>
-      <nav class="pagination">
-        {{if .PrevURL}}<a href="{{.PrevURL}}">← Previous</a>{{end}}
-        {{if .NextURL}}<a href="{{.NextURL}}">Next →</a>{{end}}
-      </nav>
-    {{else}}
-      <p class="no-results">No results found for <strong>{{.Query}}</strong>.</p>
+
+  <div class="page-layout">
+    {{if .Facets}}
+    <aside class="sidebar">
+      {{with index .Facets "mediatype"}}
+      <div class="facet-group">
+        <h3 class="facet-heading">Media Type</h3>
+        <ul class="facet-list">
+          {{range .}}<li><a href="{{facetURL $.Query "mediatype" .Value $.View}}" title="{{.Value}}">{{.Value}}</a><span class="facet-count">{{.Count}}</span></li>{{end}}
+        </ul>
+      </div>
+      {{end}}
+      {{with index .Facets "year"}}
+      <div class="facet-group">
+        <h3 class="facet-heading">Year</h3>
+        <ul class="facet-list">
+          {{range .}}<li><a href="{{facetURL $.Query "year" .Value $.View}}" title="{{.Value}}">{{.Value}}</a><span class="facet-count">{{.Count}}</span></li>{{end}}
+        </ul>
+      </div>
+      {{end}}
+      {{with index .Facets "subject"}}
+      <div class="facet-group">
+        <h3 class="facet-heading">Subject</h3>
+        <ul class="facet-list">
+          {{range .}}<li><a href="{{facetURL $.Query "subject" .Value $.View}}" title="{{.Value}}">{{.Value}}</a><span class="facet-count">{{.Count}}</span></li>{{end}}
+        </ul>
+      </div>
+      {{end}}
+      {{with index .Facets "collection"}}
+      <div class="facet-group">
+        <h3 class="facet-heading">Collection</h3>
+        <ul class="facet-list">
+          {{range .}}<li><a href="{{facetURL $.Query "collection" .Value $.View}}" title="{{.Value}}">{{.Value}}</a><span class="facet-count">{{.Count}}</span></li>{{end}}
+        </ul>
+      </div>
+      {{end}}
+      {{with index .Facets "creator"}}
+      <div class="facet-group">
+        <h3 class="facet-heading">Creator</h3>
+        <ul class="facet-list">
+          {{range .}}<li><a href="{{facetURL $.Query "creator" .Value $.View}}" title="{{.Value}}">{{.Value}}</a><span class="facet-count">{{.Count}}</span></li>{{end}}
+        </ul>
+      </div>
+      {{end}}
+      {{with index .Facets "language"}}
+      <div class="facet-group">
+        <h3 class="facet-heading">Language</h3>
+        <ul class="facet-list">
+          {{range .}}<li><a href="{{facetURL $.Query "language" .Value $.View}}" title="{{.Value}}">{{.Value}}</a><span class="facet-count">{{.Count}}</span></li>{{end}}
+        </ul>
+      </div>
+      {{end}}
+    </aside>
     {{end}}
-  </main>
+
+    <div class="main-col">
+      {{if .Results}}
+        <div class="results-header">
+          <span class="total">{{.Total}} results — page {{.Page}}</span>
+          <div class="view-toggles">
+            <a href="/search?q={{.Query | urlquery}}{{if ne .View "list"}}&view=list{{end}}"
+               class="view-btn{{if eq .View "list"}} active{{end}}" title="List view" aria-label="List view">
+              <!-- detail list icon -->
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <rect x="0" y="2" width="4" height="4" rx="1"/>
+                <rect x="6" y="3" width="10" height="2" rx="1"/>
+                <rect x="0" y="7" width="4" height="4" rx="1"/>
+                <rect x="6" y="8" width="10" height="2" rx="1"/>
+                <rect x="0" y="12" width="4" height="4" rx="1"/>
+                <rect x="6" y="13" width="10" height="2" rx="1"/>
+              </svg>
+            </a>
+            <a href="/search?q={{.Query | urlquery}}&view=grid"
+               class="view-btn{{if eq .View "grid"}} active{{end}}" title="Grid view" aria-label="Grid view">
+              <!-- grid icon -->
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <rect x="0" y="0" width="7" height="7" rx="1"/>
+                <rect x="9" y="0" width="7" height="7" rx="1"/>
+                <rect x="0" y="9" width="7" height="7" rx="1"/>
+                <rect x="9" y="9" width="7" height="7" rx="1"/>
+              </svg>
+            </a>
+            <a href="/search?q={{.Query | urlquery}}&view=compact"
+               class="view-btn{{if eq .View "compact"}} active{{end}}" title="Compact view" aria-label="Compact view">
+              <!-- compact lines icon -->
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <rect x="0" y="2" width="16" height="2" rx="1"/>
+                <rect x="0" y="7" width="16" height="2" rx="1"/>
+                <rect x="0" y="12" width="16" height="2" rx="1"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        {{if eq .View "compact"}}
+        <div class="compact-header">
+          <span class="col-thumb"></span>
+          <span class="col-title">Title</span>
+          <span class="col-creator">Creator</span>
+          <span class="col-date">Published</span>
+          <span class="col-type">Type</span>
+        </div>
+        {{end}}
+
+        <ul class="results {{.View}}-view">
+          {{range .Results}}
+          <li class="result">
+            {{if eq $.View "grid"}}
+              {{if and $.ShowCovers (eq .Mediatype "audio")}}
+              <img class="cover-thumb"
+                   src="/api/cover/{{.Identifier}}"
+                   alt=""
+                   loading="lazy"
+                   onerror="this.style.display='none'">
+              {{else}}
+              <div class="grid-icon">
+                <img src="/static/icons/{{or .Mediatype "other"}}.svg" alt="{{.Mediatype}}" width="48" height="48">
+              </div>
+              {{end}}
+              <div class="result-body">
+                <a class="result-title" href="/details/{{.Identifier}}">{{or .Title .Identifier}}</a>
+                <div class="result-meta">
+                  {{if .Creator}}<span>{{.Creator}}</span>{{end}}
+                </div>
+              </div>
+            {{else if eq $.View "compact"}}
+              {{if and $.ShowCovers (eq .Mediatype "audio")}}
+              <img class="cover-thumb"
+                   src="/api/cover/{{.Identifier}}"
+                   alt=""
+                   loading="lazy"
+                   onerror="this.style.display='none'">
+              {{else}}
+              <img class="mediatype-icon"
+                   src="/static/icons/{{or .Mediatype "other"}}.svg"
+                   alt="{{.Mediatype}}"
+                   width="16" height="16">
+              {{end}}
+              <div class="result-body">
+                <a class="result-title" href="/details/{{.Identifier}}">{{or .Title .Identifier}}</a>
+                <div class="result-meta">
+                  <span class="compact-creator">{{if .Creator}}<a href="{{creatorSearchURL .Creator}}">{{.Creator}}</a>{{end}}</span>
+                  <span class="compact-date">{{.Date}}</span>
+                  <span class="compact-type">
+                    <img src="/static/icons/{{or .Mediatype "other"}}.svg" alt="{{.Mediatype}}" width="16" height="16" style="opacity:0.55">
+                  </span>
+                </div>
+              </div>
+            {{else}}
+              {{if and $.ShowCovers (eq .Mediatype "audio")}}
+              <img class="cover-thumb"
+                   src="/api/cover/{{.Identifier}}"
+                   alt=""
+                   loading="lazy"
+                   onerror="this.style.display='none'">
+              {{else}}
+              <img class="mediatype-icon"
+                   src="/static/icons/{{or .Mediatype "other"}}.svg"
+                   alt="{{.Mediatype}}"
+                   width="18" height="18">
+              {{end}}
+              <div class="result-body">
+                <a class="result-title" href="/details/{{.Identifier}}">{{or .Title .Identifier}}</a>
+                <div class="result-meta">
+                  {{if .Creator}}<a href="{{creatorSearchURL .Creator}}">{{.Creator}}</a>{{end}}
+                  {{if and .Creator .Date}}<span class="sep"></span>{{end}}
+                  {{if .Date}}<span>{{.Date}}</span>{{end}}
+                  {{if .Mediatype}}<span class="sep"></span><span>{{.Mediatype}}</span>{{end}}
+                </div>
+              </div>
+            {{end}}
+          </li>
+          {{end}}
+        </ul>
+
+        <nav class="pagination">
+          {{if .PrevURL}}<a href="{{.PrevURL}}">← Previous</a>{{end}}
+          {{if .NextURL}}<a href="{{.NextURL}}">Next →</a>{{end}}
+        </nav>
+      {{else}}
+        <p class="no-results">No results found for <strong>{{.Query}}</strong>.</p>
+      {{end}}
+    </div>
+  </div>
 </body>
 </html>
 {{end}}
