@@ -20,6 +20,7 @@ import (
 	"io/fs"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"iabridge/internal/config"
 	"iabridge/internal/downloads"
@@ -36,12 +37,15 @@ var staticFS embed.FS
 func Register(mux *http.ServeMux, cfg *config.Config, store *downloads.Store) {
 	tmpl := template.Must(template.New("").Funcs(template.FuncMap{
 		"creatorSearchURL": func(creator string) string {
+			creator = strings.ReplaceAll(creator, `"`, `\"`)
 			return "/search?q=" + url.QueryEscape(`creator:"`+creator+`"`)
 		},
 		"subjectSearchURL": func(subject string) string {
+			subject = strings.ReplaceAll(subject, `"`, `\"`)
 			return "/search?q=" + url.QueryEscape(`subject:"`+subject+`"`)
 		},
 		"facetURL": func(q, field, value, view string) string {
+			value = strings.ReplaceAll(value, `"`, `\"`)
 			newQ := q + ` ` + field + `:"` + value + `"`
 			u := "/search?q=" + url.QueryEscape(newQ)
 			if view != "" && view != "list" {
@@ -64,7 +68,7 @@ func Register(mux *http.ServeMux, cfg *config.Config, store *downloads.Store) {
 	lanOnly := func(h http.Handler) http.Handler { return middleware.LANOnly(cfg.AllowedNet, h) }
 	mux.Handle("GET /api/downloads", lanOnly(downloadsAPI(store)))
 	mux.Handle("POST /api/downloads/clear", lanOnly(clearDownloads(store)))
-	mux.Handle("POST /api/downloads/delete", lanOnly(deleteDownloads(store)))
+	mux.Handle("POST /api/downloads/delete", lanOnly(deleteDownloads(store, cfg)))
 	mux.Handle("GET /downloads", lanOnly(downloadsPage(tmpl, store)))
 }
 

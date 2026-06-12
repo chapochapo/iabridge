@@ -15,6 +15,7 @@ func iaDownload(cfg *config.Config, store *downloads.Store) http.HandlerFunc {
 			Identifier string `json:"identifier"`
 			SavePath   string `json:"save_path"`
 		}
+		r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			jsonError(w, "invalid request body", http.StatusBadRequest)
 			return

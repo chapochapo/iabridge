@@ -136,7 +136,8 @@ func (s *Store) List() []Entry {
 }
 
 // Remove deletes entries with the given identifiers from history. Files on
-// disk are not touched.
+// disk are not touched. Running downloads are skipped and an error is returned
+// listing them — they must finish or be killed before they can be cleared.
 func (s *Store) Remove(identifiers []string) error {
 	set := make(map[string]bool, len(identifiers))
 	for _, id := range identifiers {
@@ -144,19 +145,34 @@ func (s *Store) Remove(identifiers []string) error {
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	remaining := s.entries[:0]
+	var skipped []string
+	var remaining []*Entry
 	for _, e := range s.entries {
-		if !set[e.Identifier] {
-			remaining = append(remaining, e)
+		if set[e.Identifier] && e.Status != StatusRunning {
+			continue // drop from history
 		}
+		if set[e.Identifier] {
+			skipped = append(skipped, e.Identifier) // running — keep
+		}
+		remaining = append(remaining, e)
 	}
 	s.entries = remaining
-	return s.flush()
+	if err := s.flush(); err != nil {
+		return err
+	}
+	if len(skipped) > 0 {
+		return fmt.Errorf("cannot remove running downloads: %s", strings.Join(skipped, ", "))
+	}
+	return nil
 }
 
 // Delete removes entries with the given identifiers from history and also
 // deletes the downloaded files from disk (savepath/identifier/).
-func (s *Store) Delete(identifiers []string) error {
+// allowedPaths is the current config whitelist — entries whose SavePath is no
+// longer in the whitelist (or whose Identifier is invalid) are skipped to
+// prevent deletion of paths the config no longer approves.
+// Running downloads are skipped; they must finish before they can be deleted.
+func (s *Store) Delete(identifiers []string, allowedPaths []string) error {
 	set := make(map[string]bool, len(identifiers))
 	for _, id := range identifiers {
 		set[id] = true
@@ -167,6 +183,16 @@ func (s *Store) Delete(identifiers []string) error {
 	var remaining []*Entry
 	for _, e := range s.entries {
 		if !set[e.Identifier] {
+			remaining = append(remaining, e)
+			continue
+		}
+		if e.Status == StatusRunning {
+			errs = append(errs, fmt.Sprintf("%s is still running", e.Identifier))
+			remaining = append(remaining, e)
+			continue
+		}
+		if !PathAllowed(e.SavePath, allowedPaths) || !identifierRe.MatchString(e.Identifier) {
+			errs = append(errs, fmt.Sprintf("%s: path no longer in allowed list", e.Identifier))
 			remaining = append(remaining, e)
 			continue
 		}

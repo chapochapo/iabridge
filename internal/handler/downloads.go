@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"net/http"
 
+	"iabridge/internal/config"
 	"iabridge/internal/downloads"
 )
 
@@ -26,6 +27,7 @@ func clearDownloads(store *downloads.Store) http.HandlerFunc {
 		var body struct {
 			Identifiers []string `json:"identifiers"`
 		}
+		r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			http.Error(w, "invalid body", http.StatusBadRequest)
 			return
@@ -38,16 +40,17 @@ func clearDownloads(store *downloads.Store) http.HandlerFunc {
 	}
 }
 
-func deleteDownloads(store *downloads.Store) http.HandlerFunc {
+func deleteDownloads(store *downloads.Store, cfg *config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var body struct {
 			Identifiers []string `json:"identifiers"`
 		}
+		r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			http.Error(w, "invalid body", http.StatusBadRequest)
 			return
 		}
-		if err := store.Delete(body.Identifiers); err != nil {
+		if err := store.Delete(body.Identifiers, cfg.QbittorrentPaths); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}

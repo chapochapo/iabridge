@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"iabridge/internal/archive"
 	"iabridge/internal/config"
 	"iabridge/internal/downloads"
 	"iabridge/internal/qbittorrent"
@@ -16,12 +17,18 @@ func qbtAdd(cfg *config.Config) http.HandlerFunc {
 			TorrentURL string `json:"torrent_url"`
 			SavePath   string `json:"save_path"`
 		}
+		r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			jsonError(w, "invalid request body", http.StatusBadRequest)
 			return
 		}
 
 		if !strings.HasPrefix(req.TorrentURL, "https://archive.org/download/") {
+			jsonError(w, "invalid torrent URL", http.StatusBadRequest)
+			return
+		}
+		urlPath := strings.TrimPrefix(req.TorrentURL, "https://archive.org/download/")
+		if id := strings.SplitN(urlPath, "/", 2)[0]; !archive.ValidIdentifier(id) {
 			jsonError(w, "invalid torrent URL", http.StatusBadRequest)
 			return
 		}
