@@ -1,137 +1,99 @@
 # iabridge
 
-Lightweight self-hosted frontend for [archive.org](https://archive.org).  
-Search the archive, browse item pages, and send downloads to a local qBittorrent instance or the `ia` CLI — all from a single, dependency-free Go binary.
+> **This project is fully vibe coded.** It was built entirely with AI assistance and has not been audited. Use at your own risk.
 
-**Features**
+Lightweight self-hosted frontend for [archive.org](https://archive.org). Search the archive, browse item pages, and send downloads to a local qBittorrent instance or the `ia` CLI — all from a single Go binary with no external dependencies. All archive.org API calls are proxied server-side.
+
+---
+
+## Features
+
 - Search across all mediatypes; audio results show cover thumbnails when enabled
-- Item detail pages: sanitized HTML description, clickable topic/subject tags, creator search links
+- Item detail pages: sanitized HTML description, clickable topic tags, creator search links
 - One-click torrent send to qBittorrent (save path dropdown, no free-text input)
 - `ia download` subprocess with live progress display
-- Downloads history page: bulk clear from history or delete files from disk
-- Config and downloads pages are LAN-only (`ALLOWED_CIDR`)
+- Downloads history: bulk clear from history or delete files from disk
+- Downloads page is LAN-only (`ALLOWED_CIDR`)
 
 ---
 
 ## Requirements
 
-- Go 1.22+
-- [internetarchive CLI](https://github.com/jjjake/internetarchive) (`pip install internetarchive`)
-- qBittorrent with Web UI enabled (`Tools → Preferences → Web UI`)
+- Go 1.22+ *(build machine only)*
+- [internetarchive CLI](https://github.com/jjjake/internetarchive) on the target host
+- qBittorrent with Web UI enabled *(only needed for torrent sending)*
 
 ---
 
-## Installation
+## Configuration
 
-### 1. Build
+Config is read from a `config.env` file. Set `CONFIG_PATH` to override the location (default: `./config.env`).
 
-```bash
-# Local machine
-go build -o iabridge ./cmd/iabridge
+| Key | Required | Default | Description |
+|---|---|---|---|
+| `ALLOWED_CIDR` | yes | — | LAN subnet allowed to access the downloads page (e.g. `192.168.1.0/24`) |
+| `QBITTORRENT_URL` | yes | — | qBittorrent Web UI URL |
+| `QBITTORRENT_USER` | yes | — | qBittorrent username |
+| `QBITTORRENT_PASS` | yes | — | qBittorrent password |
+| `QBITTORRENT_SAVE_PATHS` | yes | — | Comma-separated list of allowed save paths; each must be absolute and exist on disk |
+| `PORT` | no | `8090` | HTTP port to listen on |
+| `IA_BIN` | no | auto-detect | Absolute path to the `ia` binary |
+| `SHOW_COVERS` | no | `false` | Load cover images for audio items |
 
-# ARM64 (e.g. Raspberry Pi 4)
-GOOS=linux GOARCH=arm64 go build -o iabridge-arm64 ./cmd/iabridge
-```
-
-### 2. Configure
-
-```bash
-cp config.env.example config.env
-$EDITOR config.env
-chmod 600 config.env   # contains plaintext credentials
-```
-
-Minimum required fields:
-
-```env
-ALLOWED_CIDR=192.168.1.0/24          # your LAN subnet
-QBITTORRENT_URL=http://localhost:8080
-QBITTORRENT_USER=admin
-QBITTORRENT_PASS=changeme
-QBITTORRENT_SAVE_PATHS=/downloads    # comma-separated; each must exist on disk
-```
-
-See [config.env.example](config.env.example) for all options.
-
-### 3. Run
-
-```bash
-CONFIG_PATH=/path/to/config.env ./iabridge
-CONFIG_PATH=/tmp/config.env /usr/local/bin/iabridge
-# Listening on :8090 by default
-```
-
-Open `http://localhost:8090` in your browser.
+See [config.env.example](config.env.example) for an annotated template.
 
 ---
 
 ## Deployment (systemd)
 
-Copy the binary and config to the server, then install the service:
+`deploy.sh` handles building and deploying to a remote Linux host over SSH. It uses `~/.ssh/config` for host resolution, so aliases work directly.
 
 ```bash
-# Copy binary
-scp iabridge-arm64 user@your-server:/usr/local/bin/iabridge
-
-# Copy and secure config
-scp config.env user@your-server:/etc/iabridge/config.env
-ssh user@your-server "chown nobody /etc/iabridge/config.env && chmod 600 /etc/iabridge/config.env"
-
-# Install and start the service
-sudo cp deploy/iabridge.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable --now iabridge
+./deploy.sh nas              # alias defined in ~/.ssh/config
+./deploy.sh 192.168.1.50
 ```
 
-The service runs as `nobody` with a hardened systemd unit (`NoNewPrivileges`, `PrivateTmp`, `ProtectSystem=strict`).
+On each run it shows a pre-deploy status table (binary hash comparison, config state, service state) and asks for confirmation before making any changes.
 
-**Do not expose port 8090 to the internet.** The config and downloads pages are protected by LAN-only middleware (`ALLOWED_CIDR`), but the search and item pages are not authenticated.
+**First-time setup** — the script will:
+1. Detect target architecture (amd64/arm64) and cross-compile locally
+2. Create `/etc/iabridge/` on the target if missing
+3. Install the binary to `/usr/local/bin/iabridge`
+4. Offer to deploy `config.env` (sets ownership and `chmod 600`)
+5. Offer to install and enable the systemd service unit
+
+The service runs as the SSH login user. The `User=` field in the unit is set automatically from `whoami` on the target.
+
+**Subsequent runs** — updates the binary and restarts the service if it was active.
+
+### `IA_BIN` and systemd PATH
+
+Systemd runs services with a minimal environment. If `ia` is installed via pipx or in `~/.local/bin`, it will not be found automatically. Set the absolute path in `config.env`:
+
+```env
+IA_BIN=/home/youruser/.local/bin/ia
+```
+
+### Security
+
+Do not expose port 8090 to the internet. The downloads page is protected by LAN-only middleware (`ALLOWED_CIDR`), but search and item detail pages are unauthenticated.
 
 ---
 
-## Development
-
-### Run locally
-
-```bash
-# Copy and edit the example config
-cp config.env.example config.env
-
-# Run directly (auto-reloads are not built in; restart manually after changes)
-go run ./cmd/iabridge
-```
-
-### Build and test
-
-```bash
-go build ./...
-go vet ./...
-go test -race ./...
-```
-
-### Project layout
+## Project layout
 
 ```
 cmd/iabridge/        main package
 internal/
   archive/           archive.org API client
-  config/            config file loading and validation
-  downloads/         ia subprocess management and history store
-  handler/           HTTP handlers, embedded templates, SVG icons
-    tmpl/            one HTML file per page
-    static/icons/    mediatype SVG icons
+  config/            config loading and validation
+  downloads/         ia subprocess management and history
+  handler/           HTTP handlers, embedded templates, static assets
+    tmpl/            HTML templates (one per page)
+    static/          CSS, favicon, mediatype SVG icons
   middleware/        LANOnly middleware
-  qbittorrent/       qBittorrent Web UI API client
-deploy/              systemd service unit
-config.env.example   annotated configuration template
+  qbittorrent/       qBittorrent Web UI client
+config.env.example   annotated config template
+iabridge.service     systemd unit (User= substituted by deploy.sh)
+deploy.sh            build and deploy script
 ```
-
-### Development phases
-
-| Phase | Status | Scope |
-|-------|--------|-------|
-| 1 | ✅ Done | Landing page + search results |
-| 2 | ✅ Done | Detail page, download buttons, downloads history, cover thumbnails in search |
-| 3 | — | Detail page refinements for all other mediatypes |
-
-Phase 3 extends the `/details/{identifier}` page with mediatype-specific layout and metadata. Each phase must be manually tested before starting the next.
