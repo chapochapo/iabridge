@@ -1,4 +1,3 @@
 /iabridge
 /iabridge-arm64
 config.env
-deploy.sh
